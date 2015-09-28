@@ -2,5 +2,5 @@
   This view is used to render the installed plugins page.
 -->
 <div>
-  Provides SCM support for SourceSafe using the VSS Logfile.
+  Provides SCM support for Visual SourceSafe using the journal file.
 </div>

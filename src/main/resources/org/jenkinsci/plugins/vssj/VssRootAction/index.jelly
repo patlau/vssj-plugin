@@ -3,11 +3,11 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form">
 	<l:layout title="SourceSafe Journal Viewer">
-		<!-- st:include page="sidepanel.jelly"/>  -->
+		<st:include page="sidepanel.jelly"/>
 		<l:main-panel>
 			<h1>SourceSafe Journal Viewer</h1>
 			<div>
-				<form action="projectSubmit" method="post">
+				<form action="projectSubmit" method="post" >
 					<table>
 						<f:dropdownList name="list" title="Projects">
 							<!-- Loop through available project types -->
@@ -28,19 +28,15 @@
 			</div>
 			<div>
 			<h2>${it.getProjectLabel(it.selectedProject)}</h2>
-        	<table class="pane sortable bigtable" style="width:50%">	
+        	<table class="pane sortable bigtable" >	
         		<tr>
-              		<td class="pane-header" align="left,center">#</td>
+              		<td class="pane-header" align="left,center" style="width:5%">#</td>
         			<td class="pane-header" align="left,center">Entry</td>
-        			<td class="pane-header" align="left,center"></td>
-        			<td class="pane-header" align="left,center"></td>
         		</tr>
           		<j:forEach indexVar="index" var="entry" items="${it.getJournalEntries()}">
     	      		<tr>
                   		<td>${index + 1}</td>
                   		<td>${entry}</td>
-					    <td></td>
-        				<td></td>
         			</tr> 
           		</j:forEach>
         	</table>

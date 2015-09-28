@@ -91,7 +91,7 @@ public class VssRootAction implements RootAction {
 	 */
 	@Override
 	public String getUrlName() {
-		return "/vss";
+		return "/vssj";
 	}
 	
 	public List<Project<?, ?>> getProjects() {
@@ -111,7 +111,12 @@ public class VssRootAction implements RootAction {
 	public void doProjectSubmit(StaplerRequest request, StaplerResponse response) throws IOException, ServletException {
 		
 		JSONObject form = request.getSubmittedForm();
-		selectedProject = getProjects().get(Integer.parseInt(form.getString("")));
+		try {
+			selectedProject = getProjects().get(Integer.parseInt(form.getString("")));
+		} catch (NumberFormatException ex) {
+			// Invalid format
+			selectedProject = null;
+		}
 		response.sendRedirect("");
 		
 	}

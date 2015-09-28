@@ -71,7 +71,10 @@ import org.kohsuke.stapler.export.Exported;
  * Which means it is more or less a file monitor SCM, with some SourceSafe extensions.
  * See http://msdn.microsoft.com/en-US/library/ms181070%28v=vs.80%29.aspx.
  * 
- * For Get Latest ss.exe command line utility is used.
+ * For Get Latest ss.exe command line utility is used. Because this is currently not
+ * connected to the journal file monitoring, it may get more files than displayed in
+ * the change log. It should be possible to enhance this by using either the -V command
+ * line option.
  * 
  * @author patlau
  *
@@ -299,7 +302,11 @@ public class VssSCM extends SCM {
 			throws IOException {
 		for (String project : this.getVssProjectList()) {
 			if (isClean())
-				exe.clean(project);
+				try {
+					exe.clean(project);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			else
 				logger.println("Clean Disabled");
 		}

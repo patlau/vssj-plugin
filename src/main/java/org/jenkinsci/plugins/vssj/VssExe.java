@@ -23,7 +23,6 @@
 package org.jenkinsci.plugins.vssj;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ import hudson.Launcher;
 import hudson.Launcher.ProcStarter;
 import hudson.model.TaskListener;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -63,23 +61,24 @@ public class VssExe {
 		this.useSubdirs = useSubdirs;
 	}
 	
-	private String getVssProjectDirectory(String p) {
+	private FilePath getVssProjectDirectory(String p) {
 		if (useSubdirs)
-			return workspace + File.separator + p.substring(2);
+			return workspace.child(p.substring(2));
 		else
-			return workspace + "";
+			return workspace;
 	}
 	
 	/**
 	 * Clean a project directory.
 	 * @param project SourceSafe project
 	 * @throws IOException if clean failed
+	 * @throws InterruptedException 
 	 */
-	public void clean(String project) throws IOException {
-		File dir = new File(getVssProjectDirectory(project));
+	public void clean(String project) throws IOException, InterruptedException {
+		FilePath dir = getVssProjectDirectory(project);
     	if (dir.exists()) {
-    		listener.getLogger().println("Clean Directory: " + dir.getAbsolutePath());
-    	    FileUtils.cleanDirectory(dir);
+    		listener.getLogger().println("Clean Directory: " + dir.absolutize().getName());
+    	    dir.deleteContents();
     	}
     	dir.mkdirs();
 	}
@@ -92,9 +91,7 @@ public class VssExe {
 	 */
 	public int get(String project, String paramString) {
 		
-		File dir = new File(getVssProjectDirectory(project));
-		if (!dir.exists())
-			dir.mkdirs();
+		FilePath dir = getVssProjectDirectory(project);
 		
 		// %SSEXE% get $/Project -R -GWR -I-Y
 		List<String> params = new ArrayList<String>();
@@ -108,6 +105,8 @@ public class VssExe {
 		String command = StringUtils.join(params, " ");
 		
 		try {
+			if (!dir.exists())
+				dir.mkdirs();
 			return runCommand(command, dir);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -117,21 +116,21 @@ public class VssExe {
 		
 	}
 	
-    int runCommand(String command, File pwd) throws IOException, InterruptedException {
+    int runCommand(String command, FilePath dir) throws IOException, InterruptedException {
         if (launcher == null) {
             launcher = new Launcher.LocalLauncher(listener);
         }
         
-        WinUtils.checkForUnmappedNetworkDrive(new File(ssexe));
+//        WinUtils.checkForUnmappedNetworkDrive(new File(ssexe));
 
 //        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-        listener.getLogger().println("Get Directory: " + pwd.getAbsolutePath());
+        listener.getLogger().println("Get Directory: " + dir.absolutize().getName());
         listener.getLogger().println("Get Command: " + command);
 		
         ProcStarter procStarter = launcher.launch()
-        		.pwd(pwd)
+        		.pwd(dir)
         		.cmdAsSingleString("C:\\Windows\\System32\\CMD.EXE /Q /C " + command)
         		.stderr(errorStream)
         		.stdout(listener);
