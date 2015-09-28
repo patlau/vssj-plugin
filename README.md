@@ -19,6 +19,10 @@ The SS GET command may get more changes than displayed in the change log, becaus
 
 See also [SourceSafe Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Visual+SourceSafe+Plugin).
 
+Notes
+* On "missing its descriptor" messages, make shure to clean target directory before compiling
+
+
 License
 -------
 
